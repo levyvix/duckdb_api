@@ -1,0 +1,13 @@
+[project]
+name = "duckdb-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "duckdb>=1.2.2",
+    "harlequin>=2.1.1",
+    "loguru>=0.7.3",
+    "pandas>=2.2.3",
+    "requests>=2.32.3",
+]
