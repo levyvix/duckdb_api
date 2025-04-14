@@ -1,5 +1,5 @@
 [project]
-name = "duckdb-api"
+name = "duck_api"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -8,9 +8,7 @@ dependencies = [
     "duckdb>=1.2.2",
     "loguru>=0.7.3",
     "pandas>=2.2.3",
-    "pandas-stubs>=2.2.3.250308",
     "requests>=2.32.3",
-    "types-requests>=2.32.0.20250328",
 ]
 
 [dependency-groups]
