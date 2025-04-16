@@ -8,3 +8,7 @@ steps:
       - '--region=us-central1'
       - '--tasks=1'
       - '--max-retries=5'
+logsBucket: 'gs://dataproc-temp-us-central1-200997077481-pl8yqaxb'
+serviceAccount: 'projects/galvanic-flame-384620/serviceAccounts/galvanic-flame-384620@appspot.gserviceaccount.com'
+options:
+  logging: GCS_ONLY
