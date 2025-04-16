@@ -38,7 +38,6 @@ class JsonPlaceholderExtractor:
         headers: Optional[Dict[str, str]] = None,
         metodo: str = DEFAULT_METHOD,
     ) -> None:
-        """Initialize the ApiExtractor with the given parameters."""
         self.url_api = url_api
         self.tabela_destino = tabela_destino
         self.caminho_duckdb = caminho_duckdb
@@ -128,9 +127,9 @@ class JsonPlaceholderExtractor:
         """
         try:
             with duckdb.connect(self.caminho_duckdb) as conn:
-                conn.execute(f"SELECT * FROM {self.tabela_destino} LIMIT 1")
-            logger.info(f"Table '{self.tabela_destino}' exists and is accessible")
-            return True
+                conn.execute(f"describe {self.tabela_destino}")
+                logger.info(f"Table '{self.tabela_destino}' exists and is accessible")
+                return True
         except Exception as e:
             logger.error(f"Error checking table '{self.tabela_destino}': {e}")
             return False
