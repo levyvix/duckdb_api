@@ -1,10 +1,5 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/galvanic-flame-384620/duckdb-api-ingestion:latest'
-      - '.'
+
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'run'
@@ -12,9 +7,9 @@ steps:
       - 'deploy'
       - 'duckdb-api-ingestion'
       - '--region=us-central1'
-      - '--image=gcr.io/galvanic-flame-384620/duckdb-api-ingestion:latest'
       - '--tasks=1'
       - '--max-retries=5'
+      - '--source=.'
 logsBucket: 'gs://dataproc-temp-us-central1-200997077481-pl8yqaxb'
 serviceAccount: 'projects/galvanic-flame-384620/serviceAccounts/galvanic-flame-384620@appspot.gserviceaccount.com'
 options:
