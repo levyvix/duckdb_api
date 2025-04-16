@@ -1,11 +1,18 @@
 steps:
+- name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/galvanic-flame-384620/duckdb_api_ingestion:$SHORT_SHA'
+      - '.'
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'run'
       - 'jobs'
       - 'deploy'
-      - 'job-quickstart'
+      - 'duckdb_api_ingestion'
       - '--region=us-central1'
+      - '--image=gcr.io/galvanic-flame-384620/duckdb_api_ingestion:$SHORT_SHA'
       - '--tasks=1'
       - '--max-retries=5'
 logsBucket: 'gs://dataproc-temp-us-central1-200997077481-pl8yqaxb'
