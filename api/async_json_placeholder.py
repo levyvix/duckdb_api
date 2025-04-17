@@ -45,14 +45,13 @@ class AsyncJsonPlaceholderExtractor:
 
     async def extract(self) -> pd.DataFrame:
         """
-        Extract data from the API asynchronously and return it as a pandas DataFrame.
+        Extract data from the API asynchronously.
 
         Returns:
-            pd.DataFrame: The extracted data, or an empty DataFrame if an error occurs
+            pd.DataFrame: The extracted data as a DataFrame
         """
         try:
-            session = aiohttp.ClientSession()
-            async with session:
+            async with aiohttp.ClientSession() as session:
                 response = await session.request(
                     method=self.metodo,
                     url=self.url_api,
