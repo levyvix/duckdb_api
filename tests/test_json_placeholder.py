@@ -41,9 +41,7 @@ def test_extract_success(mocker, sample_data):
 
 def test_extract_http_error(mocker):
     """Test extraction with HTTP error."""
-    mocker.patch(
-        "requests.request", side_effect=requests.RequestException("HTTP Error")
-    )
+    mocker.patch("requests.request", side_effect=requests.RequestException("HTTP Error"))
 
     extractor = JsonPlaceholderExtractor(
         url_api="https://test.api/posts",

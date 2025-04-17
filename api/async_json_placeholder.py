@@ -65,9 +65,7 @@ class AsyncJsonPlaceholderExtractor:
                 logger.info(f"Successfully received data from {self.url_api}")
 
                 df = pd.DataFrame(dados_json)
-                logger.info(
-                    f"Created DataFrame with {len(df)} records and {len(df.columns)} columns"
-                )
+                logger.info(f"Created DataFrame with {len(df)} records and {len(df.columns)} columns")
                 return df
 
         except aiohttp.ClientError as e:
@@ -91,9 +89,7 @@ class AsyncJsonPlaceholderExtractor:
             with duckdb.connect(self.caminho_duckdb) as conn:
                 conn.register("dataframe", dataframe)
                 conn.execute(f"DROP TABLE IF EXISTS {self.tabela_destino}")
-                conn.execute(
-                    f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe"
-                )
+                conn.execute(f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe")
             logger.success(f"Successfully saved data to table '{self.tabela_destino}'")
             return True
         except Exception as e:
