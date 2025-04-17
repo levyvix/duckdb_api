@@ -2,9 +2,9 @@ import duckdb
 import pandas as pd
 import requests
 
-from utils.log import get_logger
+from utils.log import get_logger, log_error_with_context
 
-logger = get_logger()
+logger = get_logger({"module": "json_placeholder"})
 
 # Constants
 DEFAULT_METHOD = "GET"
@@ -60,17 +60,46 @@ class JsonPlaceholderExtractor:
             )
             response.raise_for_status()
             dados_json = response.json()
-            logger.info(f"Successfully received data from {self.url_api}")
+            logger.info(
+                "Successfully received data from API",
+                extra={
+                    "url": self.url_api,
+                    "method": self.metodo,
+                    "params": self.parametros,
+                },
+            )
 
             df = pd.DataFrame(dados_json)
-            logger.info(f"Created DataFrame with {len(df)} records and {len(df.columns)} columns")
+            logger.info(
+                "Created DataFrame from API data",
+                extra={
+                    "rows": len(df),
+                    "columns": len(df.columns),
+                    "table": self.tabela_destino,
+                },
+            )
             return df
 
         except requests.RequestException as e:
-            logger.error(f"HTTP request error: {e}")
+            log_error_with_context(
+                e,
+                {
+                    "url": self.url_api,
+                    "method": self.metodo,
+                    "params": self.parametros,
+                    "error_type": "http_error",
+                },
+            )
             return pd.DataFrame()
         except Exception as e:
-            logger.error(f"Error processing data: {e}")
+            log_error_with_context(
+                e,
+                {
+                    "url": self.url_api,
+                    "method": self.metodo,
+                    "error_type": "processing_error",
+                },
+            )
             return pd.DataFrame()
 
     def save(self, dataframe: pd.DataFrame) -> bool:
@@ -83,16 +112,29 @@ class JsonPlaceholderExtractor:
         Returns:
             bool: True if successful, False otherwise
         """
-
         try:
             with duckdb.connect(self.caminho_duckdb) as conn:
                 conn.register("dataframe", dataframe)
                 conn.execute(f"DROP TABLE IF EXISTS {self.tabela_destino}")
                 conn.execute(f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe")
-            logger.success(f"Successfully saved data to table '{self.tabela_destino}'")
+            logger.success(
+                "Successfully saved data to DuckDB",
+                extra={
+                    "table": self.tabela_destino,
+                    "rows": len(dataframe),
+                    "database": self.caminho_duckdb,
+                },
+            )
             return True
         except Exception as e:
-            logger.error(f"Error saving data: {e}")
+            log_error_with_context(
+                e,
+                {
+                    "table": self.tabela_destino,
+                    "database": self.caminho_duckdb,
+                    "error_type": "database_error",
+                },
+            )
             return False
 
     def run(self) -> bool:
@@ -105,11 +147,24 @@ class JsonPlaceholderExtractor:
         try:
             dataframe = self.extract()
             if dataframe.empty:
-                logger.warning("No data to save - DataFrame is empty")
+                logger.warning(
+                    "No data to save - DataFrame is empty",
+                    extra={
+                        "table": self.tabela_destino,
+                        "url": self.url_api,
+                    },
+                )
                 return False
             return self.save(dataframe)
         except Exception as e:
-            logger.error(f"Error in extraction and saving process: {e}")
+            log_error_with_context(
+                e,
+                {
+                    "table": self.tabela_destino,
+                    "url": self.url_api,
+                    "error_type": "pipeline_error",
+                },
+            )
             return False
 
     def check_table(self) -> bool:
@@ -122,8 +177,22 @@ class JsonPlaceholderExtractor:
         try:
             with duckdb.connect(self.caminho_duckdb) as conn:
                 conn.execute(f"describe {self.tabela_destino}")
-                logger.info(f"Table '{self.tabela_destino}' exists and is accessible")
+                logger.info(
+                    "Table verification successful",
+                    extra={
+                        "table": self.tabela_destino,
+                        "database": self.caminho_duckdb,
+                        "status": "accessible",
+                    },
+                )
                 return True
         except Exception as e:
-            logger.error(f"Error checking table '{self.tabela_destino}': {e}")
+            log_error_with_context(
+                e,
+                {
+                    "table": self.tabela_destino,
+                    "database": self.caminho_duckdb,
+                    "error_type": "table_check_error",
+                },
+            )
             return False
