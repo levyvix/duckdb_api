@@ -10,6 +10,7 @@ A Python application that extracts data from REST APIs and stores it efficiently
 - Logging with Loguru
 - HTTP requests handling
 - Type checking support
+- Comprehensive test suite with pytest
 
 ## Prerequisites
 
@@ -46,6 +47,25 @@ For development (with all dependencies):
 uv sync
 ```
 
+## Running Tests
+
+To run the test suite:
+
+```bash
+uv pip install pytest pytest-mock
+pytest
+```
+
+For more verbose output:
+```bash
+pytest -v
+```
+
+To run specific test files:
+```bash
+pytest tests/test_json_placeholder.py
+```
+
 ## Project Structure
 
 ```
@@ -53,6 +73,7 @@ duckdb-api/
 ├── api/           # API Extractor
 ├── utils/         # Utility functions (log)
 ├── logs/          # Log files (will appear when code runs)
+├── tests/         # Test suite
 ├── main.py        # Main application entry point
 ├── dados.duckdb   # DuckDB database file (will appear when code runs)
 └── pyproject.toml # Project configuration and dependencies (using UV)
@@ -68,4 +89,6 @@ duckdb-api/
 
 ### Development Dependencies
 - pyright>=1.1.399
+- pytest>=8.1.1
+- pytest-mock>=3.12.0
 

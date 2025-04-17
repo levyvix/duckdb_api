@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use session objects for multiple requests to the same host
+- Implement proper error handling and status code checking
+- Use the `timeout` parameter to prevent hanging requests
+- Utilize streaming for large responses to save memory
+- Set appropriate headers, including User-Agent, for better server interaction
