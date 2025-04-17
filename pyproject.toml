@@ -26,11 +26,11 @@ dev = [
 
 
 [tool.ruff]
-line-length = 88
+line-length = 120
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
+select = ["E", "F", "I", "N", "W", "B", "UP", "RUF"]
 ignore = []
 
 [tool.ruff.format]
