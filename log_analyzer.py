@@ -35,6 +35,9 @@ class LogAnalyzer:
             return pd.DataFrame()
 
         self.df = pd.DataFrame(self.log_data)
+        logger.debug(f"Loaded {len(self.df)} log entries")
+        logger.debug("First row of log data:")
+        logger.debug(self.df.head(1))
         return self.df
 
     def get_level_distribution(self) -> pd.DataFrame:

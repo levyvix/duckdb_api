@@ -101,35 +101,31 @@ else:
     st.subheader("Data Processing Statistics")
     stats = analyzer.get_data_processing_stats()
     if not stats.empty:
-        # Filter out test tables
-        filtered_stats = stats[~stats["table"].str.startswith("test_")]
+        col1, col2 = st.columns(2)
 
-        if not filtered_stats.empty:
-            col1, col2 = st.columns(2)
+        with col1:
+            # Remove duplicate tables and keep the last entry
+            unique_stats = stats.sort_values("table").groupby("table").last().reset_index()
+            fig = px.bar(
+                unique_stats,
+                x="table",
+                y="rows",
+                title="Rows Processed by Table",
+                labels={"rows": "Number of Rows"},
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
-            with col1:
-                # Get latest state for each table by dropping duplicates
-                latest_stats = filtered_stats.drop_duplicates("table", keep="last")
-                fig = px.bar(
-                    latest_stats,
-                    x="table",
-                    y="rows",
-                    title="Current Rows by Table",
-                    labels={"rows": "Number of Rows"},
-                )
-                st.plotly_chart(fig, use_container_width=True)
-
-            with col2:
-                # Get latest state for each table by dropping duplicates
-                latest_stats = filtered_stats.drop_duplicates("table", keep="last")
-                fig = px.bar(
-                    latest_stats,
-                    x="table",
-                    y="columns",
-                    title="Current Columns by Table",
-                    labels={"columns": "Number of Columns"},
-                )
-                st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            # Remove duplicate tables and keep the last entry
+            unique_stats = stats.sort_values("table").groupby("table").last().reset_index()
+            fig = px.bar(
+                unique_stats,
+                x="table",
+                y="columns",
+                title="Columns by Table",
+                labels={"columns": "Number of Columns"},
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
     # Raw Logs Table
     with st.expander("View Raw Logs"):
