@@ -1,7 +1,3 @@
-"""
-Data validation for JSON Placeholder API data.
-"""
-
 from typing import Any, ClassVar, TypeVar
 
 import duckdb
@@ -15,8 +11,6 @@ T = TypeVar("T", bound=BaseModel)
 
 
 class DataValidator:
-    """Data validator for JSON Placeholder API data."""
-
     MODEL_MAPPING: ClassVar[dict[str, type[BaseModel]]] = {
         "users": User,
         "posts": Post,
@@ -28,35 +22,15 @@ class DataValidator:
     }
 
     def __init__(self, conn: duckdb.DuckDBPyConnection):
-        """
-        Initialize the data validator.
-
-        Args:
-            conn: DuckDB connection
-        """
         self.conn = conn
         self.schema_validator = DuckDBSchema()
 
     def validate_data(self, table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> list[BaseModel]:
-        """
-        Validate data against the corresponding Pydantic model.
-
-        Args:
-            table_name: Name of the table/model to validate against
-            data: Data to validate (single dict or list of dicts)
-
-        Returns:
-            List[BaseModel]: List of validated model instances
-
-        Raises:
-            ValueError: If table_name is unknown or data validation fails
-        """
         if table_name not in self.MODEL_MAPPING:
             raise ValueError(f"Unknown table: {table_name}")
 
         model_class = self.MODEL_MAPPING[table_name]
 
-        # Convert single dict to list
         if isinstance(data, dict):
             data = [data]
 
@@ -73,28 +47,13 @@ class DataValidator:
         return validated_data
 
     def validate_and_save(self, table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> bool:
-        """
-        Validate data and save to DuckDB if valid.
-
-        Args:
-            table_name: Name of the table to save to
-            data: Data to validate and save
-
-        Returns:
-            bool: True if validation and save successful, False otherwise
-        """
         try:
-            # Validate schema first
             if not self.schema_validator.validate_schema(self.conn, table_name):
                 return False
 
-            # Validate data
             validated_data = self.validate_data(table_name, data)
-
-            # Convert validated models to dicts for insertion
             data_dicts = [model.model_dump() for model in validated_data]
 
-            # Insert data
             if data_dicts:
                 placeholders = ", ".join(["?" for _ in range(len(data_dicts[0]))])
                 columns = ", ".join(data_dicts[0].keys())
@@ -113,22 +72,11 @@ class DataValidator:
             return False
 
     def validate_relationships(self, table_name: str, data: dict[str, Any] | list[dict[str, Any]]) -> bool:
-        """
-        Validate foreign key relationships.
-
-        Args:
-            table_name: Name of the table to validate
-            data: Data to validate relationships for
-
-        Returns:
-            bool: True if relationships are valid, False otherwise
-        """
         try:
             if isinstance(data, dict):
                 data = [data]
 
             for item in data:
-                # Check user relationships
                 if "userId" in item:
                     result = self.conn.execute("SELECT COUNT(*) FROM users WHERE id = ?", [item["userId"]]).fetchone()
                     if result is None:
@@ -139,7 +87,6 @@ class DataValidator:
                         logger.error(f"Invalid userId {item['userId']} in {table_name}")
                         return False
 
-                # Check post relationships
                 if "postId" in item:
                     result = self.conn.execute("SELECT COUNT(*) FROM posts WHERE id = ?", [item["postId"]]).fetchone()
                     if result is None:
@@ -150,7 +97,6 @@ class DataValidator:
                         logger.error(f"Invalid postId {item['postId']} in {table_name}")
                         return False
 
-                # Check album relationships
                 if "albumId" in item:
                     result = self.conn.execute("SELECT COUNT(*) FROM albums WHERE id = ?", [item["albumId"]]).fetchone()
                     if result is None:

@@ -1,7 +1,3 @@
-"""
-DuckDB schema validation for JSON Placeholder API data.
-"""
-
 from typing import ClassVar
 
 import duckdb
@@ -9,8 +5,6 @@ from loguru import logger
 
 
 class DuckDBSchema:
-    """DuckDB schema definitions and validation."""
-
     SCHEMAS: ClassVar[dict[str, str]] = {
         "users": r"""
             CREATE TABLE IF NOT EXISTS users (
@@ -86,25 +80,12 @@ class DuckDBSchema:
 
     @staticmethod
     def validate_schema(conn: duckdb.DuckDBPyConnection, table_name: str) -> bool:
-        """
-        Validate if a table exists and has the correct schema.
-
-        Args:
-            conn: DuckDB connection
-            table_name: Name of the table to validate
-
-        Returns:
-            bool: True if schema is valid, False otherwise
-        """
         try:
             if table_name not in DuckDBSchema.SCHEMAS:
                 logger.error(f"Unknown table: {table_name}")
                 return False
 
-            # Create table if it doesn't exist
             conn.execute(DuckDBSchema.SCHEMAS[table_name])
-
-            # Verify table structure
             result = conn.execute(f"DESCRIBE {table_name}").fetchall()
             if not result:
                 logger.error(f"Failed to get schema for table: {table_name}")
