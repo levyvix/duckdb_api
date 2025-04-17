@@ -16,17 +16,11 @@ repos:
         args: [--fix]
       - id: ruff-format
 
-  - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: v0.1.23
-    hooks:
-      - id: uv-pip-check
-      - id: uv-requirements-txt
-
   - repo: local
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest
+        entry: uv run make test-verbose
         language: system
         pass_filenames: false
         always_run: true

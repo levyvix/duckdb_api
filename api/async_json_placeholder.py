@@ -60,7 +60,7 @@ class AsyncJsonPlaceholderExtractor:
                     headers=self.headers,
                     timeout=aiohttp.ClientTimeout(total=30),
                 )
-                await response.raise_for_status()
+                response.raise_for_status()
                 dados_json = await response.json()
                 logger.info(f"Successfully received data from {self.url_api}")
 

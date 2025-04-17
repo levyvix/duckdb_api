@@ -3,7 +3,6 @@ from collections.abc import Generator
 
 import pandas as pd
 import pytest
-from _pytest.fixtures import FixtureRequest
 
 
 @pytest.fixture
@@ -22,7 +21,7 @@ def sample_df(sample_data) -> pd.DataFrame:
 
 
 @pytest.fixture
-def temp_db_path(request: FixtureRequest) -> Generator[str, None, None]:
+def temp_db_path(request) -> Generator[str, None, None]:
     """Create a temporary database path and clean up after tests."""
     db_path = "test_data.duckdb"
     yield db_path
