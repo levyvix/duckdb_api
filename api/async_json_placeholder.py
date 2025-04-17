@@ -1,5 +1,3 @@
-from typing import Dict, Optional
-
 import aiohttp
 import duckdb
 import pandas as pd
@@ -34,8 +32,8 @@ class AsyncJsonPlaceholderExtractor:
         url_api: str,
         tabela_destino: str,
         caminho_duckdb: str = DUCKDB_PATH,
-        parametros: Optional[Dict[str, str]] = None,
-        headers: Optional[Dict[str, str]] = None,
+        parametros: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
         metodo: str = DEFAULT_METHOD,
     ) -> None:
         self.url_api = url_api
