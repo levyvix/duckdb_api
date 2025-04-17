@@ -74,6 +74,14 @@ class DuckDBSchema:
                 CONSTRAINT valid_thumb_url CHECK (thumbnailUrl ~ '^https?://.*$')
             )
         """,
+        # Test table schema for testing purposes
+        "test_table": r"""
+            CREATE TABLE IF NOT EXISTS test_table (
+                id INTEGER PRIMARY KEY,
+                title VARCHAR NOT NULL,
+                body TEXT NOT NULL
+            )
+        """,
     }
 
     @staticmethod
@@ -122,7 +130,7 @@ class DuckDBSchema:
         """
         try:
             # Create tables in order due to foreign key constraints
-            table_order = ["users", "posts", "comments", "todos", "albums", "photos"]
+            table_order = ["users", "posts", "comments", "todos", "albums", "photos", "test_table"]
 
             for table_name in table_order:
                 conn.execute(DuckDBSchema.SCHEMAS[table_name])

@@ -1,7 +1,11 @@
+from typing import Any, cast
+
 import aiohttp
 import duckdb
 import pandas as pd
 
+from api.validation.schema import DuckDBSchema
+from api.validation.validator import DataValidator
 from utils.log import get_logger, log_error_with_context
 
 logger = get_logger({"module": "async_json_placeholder"})
@@ -43,6 +47,11 @@ class AsyncJsonPlaceholderExtractor:
         self.headers = headers or {}
         self.metodo = metodo.upper()
 
+        # Initialize validators
+        self.conn = duckdb.connect(self.caminho_duckdb)
+        self.data_validator = DataValidator(self.conn)
+        self.schema_validator = DuckDBSchema()
+
     async def extract(self) -> pd.DataFrame:
         """
         Extract data from the API asynchronously.
@@ -59,6 +68,7 @@ class AsyncJsonPlaceholderExtractor:
                     headers=self.headers,
                     timeout=aiohttp.ClientTimeout(total=30),
                 )
+                # None is not awaitable
                 response.raise_for_status()
                 dados_json = await response.json()
                 logger.info(
@@ -70,16 +80,28 @@ class AsyncJsonPlaceholderExtractor:
                     },
                 )
 
-                df = pd.DataFrame(dados_json)
-                logger.info(
-                    "Created DataFrame from API data",
-                    extra={
-                        "rows": len(df),
-                        "columns": len(df.columns),
-                        "table": self.tabela_destino,
-                    },
-                )
-                return df
+                # Validate data before creating DataFrame
+                try:
+                    validated_data = self.data_validator.validate_data(self.tabela_destino, dados_json)
+                    df = pd.DataFrame([model.model_dump() for model in validated_data])
+                    logger.info(
+                        "Created DataFrame from validated API data",
+                        extra={
+                            "rows": len(df),
+                            "columns": len(df.columns),
+                            "table": self.tabela_destino,
+                        },
+                    )
+                    return df
+                except ValueError as e:
+                    logger.error(
+                        "Data validation failed",
+                        extra={
+                            "table": self.tabela_destino,
+                            "error": str(e),
+                        },
+                    )
+                    return pd.DataFrame()
 
         except aiohttp.ClientError as e:
             log_error_with_context(
@@ -114,19 +136,34 @@ class AsyncJsonPlaceholderExtractor:
             bool: True if successful, False otherwise
         """
         try:
-            with duckdb.connect(self.caminho_duckdb) as conn:
-                conn.register("dataframe", dataframe)
-                conn.execute(f"DROP TABLE IF EXISTS {self.tabela_destino}")
-                conn.execute(f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe")
-            logger.success(
-                "Successfully saved data to DuckDB",
-                extra={
-                    "table": self.tabela_destino,
-                    "rows": len(dataframe),
-                    "database": self.caminho_duckdb,
-                },
-            )
-            return True
+            # Validate schema before saving
+            if not self.schema_validator.validate_schema(self.conn, self.tabela_destino):
+                logger.error(
+                    "Schema validation failed",
+                    extra={
+                        "table": self.tabela_destino,
+                        "database": self.caminho_duckdb,
+                    },
+                )
+                return False
+
+            # Convert DataFrame to dict for validation
+            data_dicts = cast(list[dict[str, Any]], dataframe.to_dict("records"))
+
+            # Validate and save data using DataValidator
+            success = self.data_validator.validate_and_save(self.tabela_destino, data_dicts)
+
+            if success:
+                logger.success(
+                    "Successfully saved validated data to DuckDB",
+                    extra={
+                        "table": self.tabela_destino,
+                        "rows": len(dataframe),
+                        "database": self.caminho_duckdb,
+                    },
+                )
+            return success
+
         except Exception as e:
             log_error_with_context(
                 e,
@@ -176,8 +213,9 @@ class AsyncJsonPlaceholderExtractor:
             bool: True if table exists and is accessible, False otherwise
         """
         try:
-            with duckdb.connect(self.caminho_duckdb) as conn:
-                conn.execute(f"describe {self.tabela_destino}")
+            # Use schema validator for table check
+            success = self.schema_validator.validate_schema(self.conn, self.tabela_destino)
+            if success:
                 logger.info(
                     "Table verification successful",
                     extra={
@@ -186,7 +224,7 @@ class AsyncJsonPlaceholderExtractor:
                         "status": "accessible",
                     },
                 )
-                return True
+            return success
         except Exception as e:
             log_error_with_context(
                 e,
@@ -197,3 +235,8 @@ class AsyncJsonPlaceholderExtractor:
                 },
             )
             return False
+
+    def __del__(self):
+        """Close the database connection when the object is destroyed."""
+        if hasattr(self, "conn"):
+            self.conn.close()

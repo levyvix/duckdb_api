@@ -96,3 +96,13 @@ class Photo(BaseModel):
             field_name, field_name
         ),
     )
+
+
+class TestModel(BaseModel):
+    """Test model for testing purposes."""
+
+    id: int | None = None
+    title: str = Field(..., min_length=1)
+    body: str = Field(..., min_length=1)
+
+    model_config = ConfigDict(from_attributes=True)

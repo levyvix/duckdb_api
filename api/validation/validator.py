@@ -8,7 +8,7 @@ import duckdb
 from loguru import logger
 from pydantic import BaseModel, ValidationError
 
-from .models import Album, Comment, Photo, Post, Todo, User
+from .models import Album, Comment, Photo, Post, TestModel, Todo, User
 from .schema import DuckDBSchema
 
 T = TypeVar("T", bound=BaseModel)
@@ -24,6 +24,7 @@ class DataValidator:
         "todos": Todo,
         "albums": Album,
         "photos": Photo,
+        "test_table": TestModel,
     }
 
     def __init__(self, conn: duckdb.DuckDBPyConnection):
