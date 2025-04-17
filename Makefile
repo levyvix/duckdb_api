@@ -30,15 +30,15 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 
 lint:
-	pyright
-	ruff check .
+	uv run pyright .
+	uv run ruff check .
 
 format:
-	ruff format .
-	ruff check --fix .
+	uv run ruff format .
+	uv run ruff check --fix .
 
 install:
 	uv sync --no-default-groups
 
 install-dev:
-	uv sync 
+	uv sync
