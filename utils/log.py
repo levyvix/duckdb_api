@@ -1,5 +1,5 @@
 import sys
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -70,7 +70,7 @@ def log_error_with_context(error: Exception, context: dict[str, Any] | None = No
     error_context = {
         "error_type": type(error).__name__,
         "error_details": str(error),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         **(context or {}),
     }
     logger.bind(**error_context).exception("Error occurred")
