@@ -1,7 +1,7 @@
 import asyncio
 
-from api.async_json_placeholder import AsyncJsonPlaceholderExtractor
-from utils.log import get_logger
+from api import AsyncJsonPlaceholderExtractor
+from utils import get_logger
 
 # Initialize logger with module context
 logger = get_logger({"module": "main"})
