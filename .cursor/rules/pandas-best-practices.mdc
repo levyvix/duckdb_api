@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use vectorized operations for better performance
+- Avoid chaining index operations; use loc[] instead
+- Use appropriate data types to optimize memory usage
+- Leverage groupby() for efficient data aggregation
+- Utilize method chaining for cleaner, more readable code

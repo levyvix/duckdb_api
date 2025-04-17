@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use parameterized queries to prevent SQL injection
+- Leverage DuckDB's support for Pandas integration for seamless data manipulation
+- Utilize DuckDB's built-in functions for efficient data processing
+- Implement proper error handling and transaction management
+- Optimize queries by using appropriate indexing and query planning

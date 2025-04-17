@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use structured logging for easier log analysis and parsing
+- Implement different log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL) appropriately
+- Utilize context variables for correlation IDs in distributed systems
+- Configure log rotation to manage log file sizes
+- Use exception chaining for better error traceability

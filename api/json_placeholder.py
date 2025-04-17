@@ -1,5 +1,3 @@
-from typing import Dict, Optional
-
 import duckdb
 import pandas as pd
 import requests
@@ -34,8 +32,8 @@ class JsonPlaceholderExtractor:
         url_api: str,
         tabela_destino: str,
         caminho_duckdb: str = DUCKDB_PATH,
-        parametros: Optional[Dict[str, str]] = None,
-        headers: Optional[Dict[str, str]] = None,
+        parametros: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
         metodo: str = DEFAULT_METHOD,
     ) -> None:
         self.url_api = url_api
@@ -65,9 +63,7 @@ class JsonPlaceholderExtractor:
             logger.info(f"Successfully received data from {self.url_api}")
 
             df = pd.DataFrame(dados_json)
-            logger.info(
-                f"Created DataFrame with {len(df)} records and {len(df.columns)} columns"
-            )
+            logger.info(f"Created DataFrame with {len(df)} records and {len(df.columns)} columns")
             return df
 
         except requests.RequestException as e:
@@ -92,9 +88,7 @@ class JsonPlaceholderExtractor:
             with duckdb.connect(self.caminho_duckdb) as conn:
                 conn.register("dataframe", dataframe)
                 conn.execute(f"DROP TABLE IF EXISTS {self.tabela_destino}")
-                conn.execute(
-                    f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe"
-                )
+                conn.execute(f"CREATE TABLE {self.tabela_destino} AS SELECT * FROM dataframe")
             logger.success(f"Successfully saved data to table '{self.tabela_destino}'")
             return True
         except Exception as e:

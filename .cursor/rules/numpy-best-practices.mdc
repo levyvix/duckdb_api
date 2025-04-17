@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Use NumPy's universal functions (ufuncs) for element-wise operations
+- Prefer NumPy arrays over Python lists for numerical data
+- Use broadcasting to perform operations on arrays of different shapes
+- Utilize NumPy's random module for reproducible random number generation
+- Optimize memory usage by choosing appropriate data types
