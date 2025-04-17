@@ -30,3 +30,9 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
+      - id: pyright
+        name: pyright
+        entry: uv run pyright .
+        language: system
+        pass_filenames: false
+        always_run: true
