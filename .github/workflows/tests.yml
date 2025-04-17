@@ -31,8 +31,11 @@ jobs:
       run: |
         uv venv
         . .venv/bin/activate
-        uv pip install hatchling
-        uv pip install -e ".[dev]"
+        # Install main dependencies
+        uv pip install -e .
+        # Install dev dependencies
+        uv pip install pytest pytest-asyncio pytest-mock pytest-cov
+        uv pip install ruff pyright
 
     - name: Run ruff format check
       run: |
